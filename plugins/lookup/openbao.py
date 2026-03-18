@@ -16,7 +16,7 @@ class LookupModule(LookupBase):
                 "Environment variables OPENBAO_URL, OPENBAO_ROLE_ID, and OPENBAO_SECRET_ID must be set."
             )
 
-        # Authentifizierung mit AppRole
+        # Authentification wiuth AppRole
         client = hvac.Client(url=openbao_url)
         client.auth.approle.login(role_id=role_id, secret_id=secret_id)
 
