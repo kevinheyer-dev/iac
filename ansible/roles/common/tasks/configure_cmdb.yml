@@ -1,0 +1,16 @@
+---
+- name: Create CMDB directory
+  ansible.builtin.file:
+    path: /etc/cmdb
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Create CMDB files
+  ansible.builtin.file:
+    path: /etc/cmdb/server_type
+    state: touch
+    mode: '0755'
+    owner: root
+    group: root

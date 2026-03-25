@@ -1,0 +1,13 @@
+- name: Add fastfetch to MOTD
+  ansible.builtin.copy:
+    dest: /etc/update-motd.d/00-fastfetch
+    content: |
+      #!/bin/sh
+      fastfetch --structure "OS,Kernel,Uptime,Memory,CPU,GPU,Disk" --pipe
+    mode: '0755'
+
+- name: Clear default motd
+  ansible.builtin.copy:
+    dest: /etc/motd
+    content: ''
+    mode: '0755'

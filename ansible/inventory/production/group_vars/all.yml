@@ -1,2 +1,2 @@
 ---
-
+ssh_user: "{{ lookup('openbao', 'secret=ansible/production/group_vars/ssh')['ssh_user'] }}"

@@ -1,0 +1,20 @@
+[DEFAULT]
+# IgnoreIP: Whitelist für vertrauenswürdige IPs (z. B. lokale Netze oder Management-Hosts)
+ignoreip = 127.0.0.1/8 ::1 10.10.10.1/32 10.10.40.0/24
+
+# Ban-Time und Find-Time (Standard: 10 Minuten Ban nach 3 Fehlversuchen in 5 Minuten)
+bantime  = 10m
+findtime = 5m
+maxretry = 3
+
+# destemail = admin@example.com
+# sender = fail2ban@example.com
+# action = %(action_mwl)s
+
+[sshd]
+enabled  = true
+port     = ssh
+filter   = sshd
+logpath  = %(sshd_log)s
+maxretry = 3
+bantime  = 1h

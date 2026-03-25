@@ -1,0 +1,22 @@
+---
+- name: Remove Packer user
+  ansible.builtin.user:
+    name: Packer
+    state: absent
+
+- name: Add Admin User
+  ansible.builtin.user:
+    name: "{{ ssh_user }}"
+    state: present
+    create_home: yes
+    shell: /bin/bash
+    system: no
+    groups: sudo
+    append: yes
+
+- name: Configure sudo for admin user
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ ssh_user }}"
+    content: |
+      {{ ssh_user }} ALL=(ALL:ALL) NOPASSWD:ALL
+    mode: '0440'

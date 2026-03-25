@@ -1,0 +1,41 @@
+# chrony.conf.j2
+#Managed by Ansible - Do not edit manually!
+
+# Use public NTP servers (pool.ntp.org)
+server 0.de.pool.ntp.org iburst
+server 1.de.pool.ntp.org iburst
+server 2.de.pool.ntp.org iburst
+server 3.de.pool.ntp.org iburst
+
+server 0.pool.ntp.org iburst
+server 1.pool.ntp.org iburst
+
+# Record the rate at which the system clock gains/losses time
+driftfile /var/lib/chrony/drift
+
+# Enable kernel synchronization
+makestep 1.0 3
+
+# Log settings
+logdir /var/log/chrony
+log measurements statistics tracking
+
+# Specify the keyfile if using authentication
+{#- keyfile /etc/chrony/chrony.keys #}
+
+# Command key for chronyc
+commandkey 1
+generatecommandkey
+
+# Disable the local mode if not needed
+local stratum 10
+
+# Enable hardware timestamping on all interfaces
+hwtimestamp *
+
+# Initial step threshold (seconds)
+initstepslew 10 client
+
+# Client access restrictions
+cmdallow 127.0.0.1
+cmdallow ::1

@@ -1,0 +1,29 @@
+---
+- name: Install common Packages
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+    pkg:
+    - jq
+    - wget
+    - curl
+    - git
+    - chrony
+    - htop
+    - rsync
+    - tree
+    - net-tools
+    - lsof
+    - logrotate
+    - ufw
+    - gnupg
+    - tcpdump
+    - dnsutils
+    - iptables
+    - cron
+    - fail2ban
+    - auditd
+    - unattended-upgrades
+    - lsb-release
+    - fastfetch
+
