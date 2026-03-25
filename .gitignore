@@ -19,6 +19,7 @@ Thumbs.db
 *.log
 ansible-navigator.log
 .ansible/
+ansible/cache/
 
 # Geheimnisse
 .vault_pass
