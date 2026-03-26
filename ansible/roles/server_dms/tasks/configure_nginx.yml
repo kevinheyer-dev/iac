@@ -1,0 +1,52 @@
+---
+- name: Remove default Nginx config
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  become: true
+  notify: Restart Nginx
+
+- name: Create Nginx configuration for Paperless
+  ansible.builtin.template:
+    src: nginx_paperless.conf.j2
+    dest: /etc/nginx/sites-available/paperless.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Enable Paperless Nginx site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/paperless.conf
+    dest: /etc/nginx/sites-enabled/paperless.conf
+    state: link
+  become: true
+  notify: Restart Nginx
+
+- name: Create Certbot DNS credentials directory
+  ansible.builtin.file:
+    path: /etc/letsencrypt/dns-creds
+    state: directory
+    mode: '0700'
+  become: true
+
+- name: Deploy DNS API Token
+  ansible.builtin.copy:
+    dest: /etc/letsencrypt/dns-creds/cloudflare.ini
+    content: |
+      dns_cloudflare_api_token = {{ cloudflare_api_key }}
+    mode: '0600'
+  become: true
+
+- name: Request SSL Certificate via DNS-01 Challenge
+  ansible.builtin.command:
+    cmd: >
+      certbot certonly --dns-cloudflare 
+      --dns-cloudflare-credentials /etc/letsencrypt/dns-creds/cloudflare.ini 
+      --dns-cloudflare-propagation-seconds 60 
+      -d {{ paperless_fqdn }} 
+      --email {{ paperless_admin_mail }} 
+      --agree-tos --non-interactive
+    creates: "/etc/letsencrypt/live/{{ paperless_fqdn }}/fullchain.pem"
+  become: true
+  notify: Reload Nginx

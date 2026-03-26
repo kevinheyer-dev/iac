@@ -1,0 +1,7 @@
+---
+- name: Configure ImageMagick policy for PDF
+  lineinfile:
+    path: /etc/ImageMagick-7/policy.xml
+    regexp: '<policy domain="coder" rights="none" pattern="PDF" />'
+    line: '<policy domain="coder" rights="read|write" pattern="PDF" />'
+    backup: true

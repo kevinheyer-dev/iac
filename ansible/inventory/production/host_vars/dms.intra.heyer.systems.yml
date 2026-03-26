@@ -1,0 +1,6 @@
+paperless_db_name: "{{ lookup('openbao', 'secret=ansible/production/hosts/dms.intra.heyer.systems')['paperless_db_name'] }}"
+paperless_db_user: "{{ lookup('openbao', 'secret=ansible/production/hosts/dms.intra.heyer.systems')['paperless_db_user'] }}"
+paperless_db_pass: "{{ lookup('openbao', 'secret=ansible/production/hosts/dms.intra.heyer.systems')['paperless_db_pass'] }}"
+paperless_admin_mail: "{{ lookup('openbao', 'secret=ansible/production/hosts/dms.intra.heyer.systems')['paperless_admin_mail'] }}"
+paperless_secret_key: "{{ lookup('openbao', 'secret=ansible/production/hosts/dms.intra.heyer.systems')['paperless_secret_key'] }}"
+paperless_fqdn: "{{ lookup('openbao', 'secret=ansible/production/hosts/dms.intra.heyer.systems')['paperless_fqdn'] }}"

@@ -1,0 +1,37 @@
+---
+- name: Ensure Redis is running and enabled
+  service:
+    name: redis
+    state: started
+    enabled: true
+
+- name: Configure Redis Network and Security
+  ansible.builtin.lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: '^bind ', line: 'bind 127.0.0.1 ::1' }
+    - { regexp: '^protected-mode ', line: 'protected-mode yes' }
+  notify: Restart Redis
+
+- name: Disable Transparent Huge Pages for Redis performance
+  ansible.builtin.shell: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+  changed_when: false
+
+- name: Enable Redis Unix Socket
+  ansible.builtin.lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^# unixsocket ', line: 'unixsocket /var/run/redis/redis-server.sock' }
+    - { regexp: '^# unixsocketperm ', line: 'unixsocketperm 770' }
+  notify: Restart Redis
+
+- name: Add paperless user to redis group
+  ansible.builtin.user:
+    name: paperless
+    groups: redis
+    append: true

@@ -1,0 +1,76 @@
+---
+- name: Install common Packages
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+    pkg:
+      - libncurses5-dev
+      - libncursesw5-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - liblzma-dev
+      - libgdbm-dev
+      - tk-dev
+      - libbz2-dev
+      - libexpat1-dev
+      - libdb5.3-dev
+      - ca-certificates
+      - libssl-dev
+      - curl
+      - gnupg
+      - libpq-dev
+      - pkg-config
+      - fonts-liberation
+      - imagemagick
+      - libmagic-dev
+      - libffi-dev
+      - libmariadb-dev
+      - uuid-dev
+      - wget
+      - libzbar0
+      - poppler-utils
+      - unpaper
+      - ghostscript
+      - icc-profiles-free
+      - qpdf
+      - libleptonica-dev
+      - libxml2
+      - libxml2-dev
+      - libxslt-dev
+      - pngquant
+      - zlib1g
+      - zlib1g-dev
+      - libjpeg-dev
+      - libtiff-dev
+      - tesseract-ocr
+      - tesseract-ocr-eng
+      - tesseract-ocr-deu
+      - build-essential
+      - redis-server
+      - libmariadb-dev
+      - nginx
+      - certbot
+      - python3-certbot-dns-cloudflare
+
+- name: Download and Install Python 3.11.11
+  block:
+    - name: Download Python Source
+      ansible.builtin.get_url:
+        url: https://www.python.org/ftp/python/3.11.11/Python-3.11.11.tgz
+        dest: /tmp/Python-3.11.11.tgz
+        mode: '0644'
+
+    - name: Unarchive Python Source
+      ansible.builtin.unarchive:
+        src: /tmp/Python-3.11.11.tgz
+        dest: /tmp/
+        remote_src: yes
+
+    - name: Configure and Build Python (this takes a while)
+      ansible.builtin.shell: |
+        cd /tmp/Python-3.11.11
+        ./configure --enable-optimizations --with-ensurepip=install
+        make -j$(nproc)
+        make altinstall
+      args:
+        creates: /usr/local/bin/python3.11

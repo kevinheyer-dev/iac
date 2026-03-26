@@ -1,0 +1,8 @@
+---
+- name: Create Paperless user
+  user:
+    name: paperless
+    system: true
+    home: "{{ paperless_install_dir }}"
+    create_home: false
+    shell: /usr/sbin/nologin

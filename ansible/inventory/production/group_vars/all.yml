@@ -1,2 +1,3 @@
 ---
 ssh_user: "{{ lookup('openbao', 'secret=ansible/production/group_vars/ssh')['ssh_user'] }}"
+cloudflare_api_key: "{{ lookup('openbao', 'secret=ansible/production/group_vars/cloudflare')['api_key'] }}"

@@ -1,0 +1,24 @@
+---
+- name: Include package installation
+  ansible.builtin.import_tasks: install_packages.yml
+
+- name: Include redis configuration
+  ansible.builtin.import_tasks: configure_redis.yml
+
+- name: Include user configuration 
+  ansible.builtin.import_tasks: configure_user.yml
+
+- name: Include direcotry configuration 
+  ansible.builtin.import_tasks: configure_directories.yml
+
+- name: Include ImageMagick configuration 
+  ansible.builtin.import_tasks: configure_imagemagick.yml
+
+- name: Include PostgreSQL installation 
+  ansible.builtin.import_tasks: install_postgresql.yml
+
+- name: Include PaperlessNGX installation 
+  ansible.builtin.import_tasks: install_paperless.yml
+
+- name: Include Nginx configuration 
+  ansible.builtin.import_tasks: configure_nginx.yml
