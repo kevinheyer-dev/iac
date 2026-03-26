@@ -26,4 +26,6 @@
     - unattended-upgrades
     - lsb-release
     - fastfetch
-
+    - python3
+    - python3-pip
+    - ca-certificates
