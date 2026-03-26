@@ -1,33 +1,77 @@
 ---
-- name: Prepare Virtualenv with latest build tools
-  ansible.builtin.pip:
-    virtualenv: "{{ paperless_venv_dir }}"
-    virtualenv_command: python3.11 -m venv
-    name: 
-      - pip
-      - setuptools
-      - wheel
-    state: latest
-  become: true
-  become_user: paperless
+- name: Check if Paperless is already installed
+  ansible.builtin.stat:
+    path: "{{ paperless_install_dir }}/src/manage.py"
+  register: paperless_installed
 
-- name: Create Virtual Environment ans install requirements
-  ansible.builtin.pip:
-    virtualenv: "{{ paperless_venv_dir }}"
-    virtualenv_command: python3.11 -m venv
-    requirements: "{{ paperless_install_dir }}/requirements.txt"
-  become: true
-  become_user: paperless
-
-- name: Create Paperless Configuration
+- name: Update Paperless Configuration
   ansible.builtin.template:
     src: paperless.conf.j2
     dest: "{{ paperless_install_dir }}/paperless.conf"
     owner: paperless
     group: paperless
     mode: '0640'
+  register: config_file
 
-- name: Run Paperless Database Migrations
+- name: Create Database Backup before update
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: "{{ paperless_db_name }}"
+    state: dump
+    target: "/tmp/paperless_db_backup.sql"
+  when: 
+    - paperless_installed.stat.exists 
+    - config_file.changed
+
+- name: Move backup to data directory
+  ansible.builtin.copy:
+    src: "/tmp/paperless_db_backup.sql"
+    dest: "{{ paperless_install_dir }}/data/backup_before_upgrade_{{ ansible_facts['date_time']['date'] }}.sql"
+    remote_src: true
+    owner: paperless
+    group: paperless
+    mode: '0640'
+  when: 
+    - paperless_installed.stat.exists
+    - config_file.changed
+
+- name: Download and Extract New Version
+  block:
+    - name: Download Paperless-ngx Release
+      ansible.builtin.get_url:
+        url: "https://github.com/paperless-ngx/paperless-ngx/releases/download/v{{ paperless_version }}/paperless-ngx-v{{ paperless_version }}.tar.xz"
+        dest: "/tmp/paperless-ngx-{{ paperless_version }}.tar.xz"
+        mode: '0644'
+
+    - name: Extract Paperless-ngx
+      ansible.builtin.unarchive:
+        src: "/tmp/paperless-ngx-{{ paperless_version }}.tar.xz"
+        dest: "{{ paperless_install_dir }}"
+        remote_src: true
+        extra_opts: ['--strip-components=1']
+        owner: paperless
+        group: paperless
+  when: (not paperless_installed.stat.exists) or config_file.changed
+  notify: Restart Paperless
+
+- name: Update Virtualenv and Requirements
+  block:
+    - name: Prepare Virtualenv tools
+      ansible.builtin.pip:
+        virtualenv: "{{ paperless_venv_dir }}"
+        virtualenv_command: python3.11 -m venv
+        name: [pip, setuptools, wheel]
+        state: latest
+
+    - name: Install requirements
+      ansible.builtin.pip:
+        virtualenv: "{{ paperless_venv_dir }}"
+        requirements: "{{ paperless_install_dir }}/requirements.txt"
+  become: true
+  become_user: paperless
+
+- name: Run Database Migrations
   ansible.builtin.command:
     cmd: "{{ paperless_venv_dir }}/bin/python manage.py migrate"
     chdir: "{{ paperless_install_dir }}/src"
@@ -35,6 +79,7 @@
   become_user: paperless
   register: migration_result
   changed_when: "'No migrations to apply' not in migration_result.stdout"
+  notify: Restart Paperless
 
 - name: Collect Static Files
   ansible.builtin.command:
@@ -49,7 +94,7 @@
     cmd: |
       {{ paperless_venv_dir }}/bin/python manage.py shell -c "from django.contrib.auth.models import User; \
       User.objects.filter(username='admin').exists() or \
-      User.objects.create_superuser('admin', '{{ paperless_admin_mail }}', '{{ paperless_db_pass }}')"
+      User.objects.create_superuser('admin', '{{ paperless_admin_mail }}', '{{ paperless_admin_pass }}')"
     chdir: "{{ paperless_install_dir }}/src"
   become: true
   become_user: paperless
