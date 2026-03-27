@@ -1,0 +1,7 @@
+#!/bin/bash
+
+rclone --config "{{ paperless_install_dir }}/.config/rclone/rclone.conf" sync --verbose --checkers=4 --transfers=4 "{{ rclone_remote_name }}:" "{{ paperless_consume_dir }}"
+
+rclone --config "{{ paperless_install_dir }}/.config/rclone/rclone.conf" delete "{{ rclone_remote_name }}:" --include "*"
+
+echo "Sync completed: $(date)" >> {{ rclone_log_file }}

@@ -1,0 +1,18 @@
+---
+# Toggle for synchronization
+enable_nextcloud_sync: true
+
+# Rclone configuration
+rclone_remote_name: "your-nextcloud"
+rclone_webdav_url: "https://your-nextcloud-domain.de/remote.php/dav/files/your_nextcloud_consume_path"
+rclone_webdav_user: "your_nextcloud_username"
+rclone_webdav_pass: "your_app_password"  # Use an app password from Nextcloud!
+
+# Paths
+paperless_install_dir: "/opt/paperless"
+paperless_consume_dir: "{{ paperless_install_dir }}/consume"
+rclone_log_file: "/var/log/paperless/paperless_rclone_sync.log"
+
+# Cron job settings
+rclone_cron_minute: "*/15"
+rclone_cron_user: "root"
