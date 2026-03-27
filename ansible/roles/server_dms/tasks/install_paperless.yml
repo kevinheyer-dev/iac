@@ -55,6 +55,15 @@
   when: (not paperless_installed.stat.exists) or config_file.changed
   notify: Restart Paperless
 
+- name: Update Paperless Configuration
+  ansible.builtin.template:
+    src: paperless.conf.j2
+    dest: "{{ paperless_install_dir }}/paperless.conf"
+    owner: paperless
+    group: paperless
+    mode: '0640'
+  register: config_file
+
 - name: Update Virtualenv and Requirements
   block:
     - name: Prepare Virtualenv tools
@@ -129,6 +138,9 @@
     - name: paperless-scheduler
       desc: Paperless-ngx Celery Scheduler
       exec: "{{ paperless_venv_dir }}/bin/celery --app paperless beat --loglevel INFO"
+    - name: paperless-consumer
+      desc: Paperless-ngx Document Consumer
+      exec: "{{ paperless_venv_dir }}/bin/python manage.py document_consumer"
   notify: Reload Systemd
 
 - name: Enable and Start Paperless Services
@@ -140,3 +152,4 @@
     - paperless-webserver
     - paperless-worker
     - paperless-scheduler
+    - paperless-consumer
