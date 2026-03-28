@@ -1,7 +1,8 @@
 ---
 - name: Common Installation
   hosts:
-    - dms.intra.heyer.systems
+    #- dms.intra.heyer.systems
+    - controller.intra.heyer.systems
   gather_facts: false
   become: true
 
