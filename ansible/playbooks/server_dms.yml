@@ -6,5 +6,5 @@
   become: true
 
   roles:
-    #- server_dms
+    - server_dms
     - server_dms_nextcloud
