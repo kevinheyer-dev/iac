@@ -1,7 +1,0 @@
----
-profile: min
-exclude_paths:
-  - .env/
-  - .cache/
-
-quiet: false
